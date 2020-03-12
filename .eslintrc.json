@@ -1,0 +1,10 @@
+{
+  "extends": ["react-app"],
+  "plugins": ["flowtype", "import", "jsx-a11y", "prettier", "react", "react-hooks"],
+  "rules": {
+    "react/no-typos": 0,
+    "react/jsx-key": 2,
+    "react-hooks/rules-of-hooks": "error",
+    "react/require-render-return": 0
+  }
+}

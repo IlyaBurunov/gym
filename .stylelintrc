@@ -1,0 +1,36 @@
+{
+  "plugins": [
+    "stylelint-prettier"
+  ],
+  "extends": [
+    "stylelint-prettier/recommended",
+    "stylelint-config-prettier"
+  ],
+  "rules": {
+    "prettier/prettier": true,
+    "color-no-invalid-hex": true,
+    "declaration-colon-space-after": "always",
+    "max-empty-lines": 1,
+    "declaration-block-no-duplicate-properties": true,
+    "declaration-block-no-shorthand-property-overrides": true,
+    "comment-no-empty": true,
+    "no-descending-specificity": true,
+    "no-duplicate-at-import-rules": true,
+    "no-duplicate-selectors": true,
+    "no-extra-semicolons": true,
+    "color-named": "never",
+    "shorthand-property-no-redundant-values": true,
+    "declaration-no-important": true,
+    "declaration-block-no-redundant-longhand-properties": true,
+    "selector-max-empty-lines": 1,
+    "color-hex-case": "lower",
+    "font-weight-notation": "numeric",
+    "number-leading-zero": "never",
+    "number-no-trailing-zeros": true,
+    "string-quotes": "double",
+    "length-zero-no-unit": true,
+    "value-list-max-empty-lines": 0,
+    "rule-empty-line-before": "always",
+    "no-eol-whitespace": true
+  }
+}

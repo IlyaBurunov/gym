@@ -1,0 +1,106 @@
+/* reset.scss */
+// Reset Browser Styles
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+pre,
+fieldset,
+figure {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol,
+dl,
+dt,
+dd,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: inherit;
+  background-color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+input {
+  border: none;
+  outline: none;
+  font: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    opacity: 1;
+  }
+}
+
+fieldset {
+  border: none;
+}
+
+pre {
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+textarea {
+  border: none;
+  outline: none;
+  resize: none;
+  font: inherit;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+select {
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
+}
