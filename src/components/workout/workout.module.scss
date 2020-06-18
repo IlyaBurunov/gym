@@ -1,0 +1,71 @@
+.wrapper {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 14px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 38px;
+}
+
+.date {
+  color: #617382;
+}
+
+.exerciseInput {
+  width: 300px;
+}
+
+.exercisesResult {
+  position: absolute;
+  padding: 1em;
+  border: 1px solid #617382;
+  border-radius: 12px;
+  background-color: #fff;
+
+  &__resultItem {
+    width: 100%;
+    padding: .5em;
+    display: flex;
+    justify-content: flex-start;
+    border-radius: 12px;
+
+    &:hover {
+      background-color: #dce0e8;
+    }
+
+    &:active {
+      background-color: #a3adbd;
+    }
+  }
+}
+
+.exerciseTitle {
+  width: 600px;
+  padding: .5em 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+
+.exerciseSets {
+  display: grid;
+  row-gap: 1em;
+}
+
+.exerciseSet {
+  width: 500px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 1em;
+  }
+}

@@ -1,0 +1,41 @@
+.wrapper {
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 2em;
+}
+
+.header {
+  background-color: #eef1f5;
+}
+
+.headerWrapper {
+  width: 1200px;
+  height: 40px;
+  margin: 0 auto;
+  padding: .5em 1em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workouts {
+  display: grid;
+  row-gap: 1em;
+}
+
+.workoutItem {
+  width: 600px;
+  padding: .75em 1em .5em;
+  border-radius: 12px;
+
+  &:hover {
+    background-color: #dce0e8;
+  }
+
+  &:active {
+    background-color: #a3adbd;
+  }
+}

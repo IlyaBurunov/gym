@@ -3,14 +3,8 @@ import { useHistory, Link } from 'react-router-dom';
 import { workoutService } from '../../services/static-instances';
 import { Workout } from '../../services/workouts.service';
 import { DateHelper } from '../../helpers/date-helper';
-import styled from 'styled-components';
-
-export const Btn = styled.button`
-  border-radius: 5px;
-  border-style: solid;
-  border-color: #ec5335;
-  padding: 5px;
-`;
+import styles from './main-styles.module.scss';
+import { PlusIcon } from '../icons';
 
 const Main = () => {
   const history = useHistory();
@@ -20,10 +14,10 @@ const Main = () => {
   const workoutsTmpl = useMemo(() => {
     return workouts.map(w => {
       return (
-        <Link to={`/workout/${w.id}`} key={w.id}>
-          <p>
+        <Link to={`/workout/${w.id}`} key={w.id} className={styles.workoutItem}>
+          <span>
             {w.title} {dateHelper.getDateFormat(w.startTime)}
-          </p>
+          </span>
         </Link>
       );
     });
@@ -45,11 +39,19 @@ const Main = () => {
   }, [history]);
 
   return (
-    <>
-      <h1>Gym app</h1>
-      <Btn onClick={onAddWorkoutClick}>Add new Workout</Btn>
-      {workoutsTmpl}
-    </>
+    <div>
+      <header className={styles.header}>
+        <div className={styles.headerWrapper}>
+          <h1>Gym app</h1>
+          <button onClick={onAddWorkoutClick}>
+            <PlusIcon />
+          </button>
+        </div>
+      </header>
+      <div className={styles.wrapper}>
+        <div className={styles.workouts}>{workoutsTmpl}</div>
+      </div>
+    </div>
   );
 };
 
