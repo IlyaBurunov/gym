@@ -2,13 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo, useRef, useCont
 import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import {
-  Workout,
-  Exercise,
-  WeightType,
-  Set,
-  ExerciseUnitType
-} from '../../services/workouts.service';
+import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../models/workouts';
 import { workoutService, searchService } from '../../services/static-instances';
 import { ExerciseDatabaseType } from '../../database/exercises';
 import { DateHelper } from '../../helpers/date-helper';
@@ -320,11 +314,9 @@ const WorkoutItem = (props: Props) => {
   const { workout, updateWorkout, isNewWorkout } = props;
   const [isEditing, setIsEditing] = useState<boolean>(!!isNewWorkout);
   const history = useHistory();
-  const dateHelper = useMemo(() => new DateHelper(), []);
 
-  const workoutDate = useMemo(() => dateHelper.getDateFormat(workout.startTime), [
-    workout.startTime,
-    dateHelper
+  const workoutDate = useMemo(() => DateHelper.getDateFormat(workout.startTime), [
+    workout.startTime
   ]);
 
   const onExerciseUpdate = useCallback(
@@ -366,14 +358,14 @@ const WorkoutItem = (props: Props) => {
       const newEx: Exercise = {
         ...ex,
         sets: [],
-        startTime: dateHelper.getCurrentDate(),
+        startTime: DateHelper.getCurrentDate(),
         endTime: ''
       };
       const updatedWorkout = { ...workout, exercises: [...workout.exercises, newEx] };
       setIsEditing(true);
       updateWorkout(updatedWorkout);
     },
-    [dateHelper, workout, updateWorkout]
+    [workout, updateWorkout]
   );
 
   const onSaveClick = useCallback(() => {

@@ -1,4 +1,5 @@
 import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { exercises, ExerciseDatabaseType } from '../database/exercises';
 
 export class SearchService {
@@ -9,6 +10,6 @@ export class SearchService {
       return of(searchResults);
     }
 
-    return of(searchResults.slice(limit));
+    return of(searchResults.slice(limit)).pipe(delay(300));
   }
 }

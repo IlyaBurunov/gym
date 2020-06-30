@@ -1,23 +1,23 @@
 import dayJs from 'dayjs';
 
 export class DateHelper {
-  getDateFormat = (date: string): string => {
+  static getDateFormat = (date: string): string => {
     return dayJs(date).format('DD MMM YYYY');
   };
 
-  getFullTimeFormat = (date: string): string => {
+  static getFullTimeFormat = (date: string): string => {
     return dayJs(date).format('HH:mm:ss');
   };
 
-  getShortTimeFormat = (date: string): string => {
+  static getShortTimeFormat = (date: string): string => {
     return dayJs(date).format('HH:mm');
   };
 
-  getFullDate = (date: string): string => {
+  static getFullDate = (date: string): string => {
     return dayJs(date).format('DD MMM YYYY HH:mm:ss');
   };
 
-  getCurrentDate = (): string => {
+  static getCurrentDate = (): string => {
     return dayJs().format();
   };
 }
