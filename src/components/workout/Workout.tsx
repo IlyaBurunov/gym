@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, memo, useRef, useCont
 import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, finalize } from 'rxjs/operators';
 import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../models/workouts';
 import { workoutService, searchService } from '../../services/static-instances';
 import { ExerciseDatabaseType } from '../../database/exercises';
@@ -23,18 +23,22 @@ const useWorkout = (
   workoutId: string
 ): {
   workout: Workout | null;
+  loading: boolean;
   isNewWorkout?: boolean;
 } => {
   const { state } = useLocation<{ isNewWorkout?: boolean }>();
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const workout = useSelector<AppState, Workout | null>(
     state => state.workouts.workouts[`${workoutId}`] || null
   );
 
   useEffect(() => {
+    setLoading(true);
     const sub = workoutService
       .getNewWorkout(workoutId)
       .pipe(
+        finalize(() => setLoading(false)),
         switchMap(newW => {
           if (newW) {
             return of(newW);
@@ -52,14 +56,14 @@ const useWorkout = (
     return () => sub.unsubscribe();
   }, [workoutId, state, dispatch]);
 
-  return { workout, isNewWorkout: state?.isNewWorkout };
+  return { workout, isNewWorkout: state?.isNewWorkout, loading };
 };
 
 const withWorkout = WrappedComponent => () => {
   const { workoutId } = useParams<{ workoutId: string }>();
-  const { workout, isNewWorkout } = useWorkout(workoutId);
+  const { workout, loading, isNewWorkout } = useWorkout(workoutId);
 
-  if (!workout) {
+  if (!workout || loading) {
     return <div>loading...</div>;
   }
 
