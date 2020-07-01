@@ -3,7 +3,8 @@ import { delay } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { AppConfig } from '../configs/AppConfig';
-import { Workout } from '../models/workouts';
+import { Workout, Exercise } from '../models/workouts';
+import { ResultType } from '../models/result';
 
 export class WorkoutService {
   getWorkouts(userId: string): Observable<Workout[]> {
@@ -39,6 +40,16 @@ export class WorkoutService {
   updateWorkout(workout: Workout): Observable<any> {
     localStorage.setItem(AppConfig.newWorkoutKey, JSON.stringify(workout));
     return of('').pipe(delay(300));
+  }
+
+  updateWorkoutExercises(
+    workoutId: string,
+    exercises: Exercise[]
+  ): Observable<{ status: ResultType }> {
+    const storageNewWorkout = localStorage.getItem(AppConfig.newWorkoutKey);
+    const newWorkout = storageNewWorkout && JSON.parse(storageNewWorkout);
+    localStorage.setItem(AppConfig.newWorkoutKey, JSON.stringify({ ...newWorkout, exercises }));
+    return of({ status: ResultType.Success }).pipe(delay(300));
   }
 
   saveWorkout(workout: Workout): Observable<any> {

@@ -69,3 +69,17 @@
     column-gap: 1em;
   }
 }
+
+.buttons {
+  display: flex;
+  align-items: center;
+
+  &__confirm {
+    color: #3095f3;
+  }
+
+  &__cancel {
+    margin-left: 10px;
+    color: #f7173f;
+  }
+}

@@ -3,7 +3,7 @@ import produce from 'immer';
 
 import { Workout } from '../../models/workouts';
 
-import { addWorkouts } from '../actions/workouts';
+import { addWorkouts, setWorkoutExercises } from '../actions/workouts';
 
 export type State = {
   workouts: Record<string, Workout>;
@@ -26,7 +26,7 @@ function mergeWorkouts(
   for (const workout of workoutsArr) {
     const id = workout.id;
 
-    if (workout.exercises) {
+    if (workout.exercises.length) {
       exercisesObj[id] = workout.exercises;
       delete workout.exercises;
     }
@@ -41,6 +41,10 @@ export default handleActions(
       produce(state, draft => {
         mergeWorkouts(draft.workouts, draft.workoutsExercises, workouts);
         draft.workoutsIds = workouts.map(item => item.id);
+      }),
+    [setWorkoutExercises]: (state, { payload: { workoutId, exercises } }) =>
+      produce(state, draft => {
+        draft.workoutsExercises[`${workoutId}`] = exercises;
       })
   },
   initialState

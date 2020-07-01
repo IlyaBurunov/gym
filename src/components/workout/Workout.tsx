@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo, useRef, useContext } from 'react';
 import { useParams, useLocation, useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../models/workouts';
@@ -10,21 +11,25 @@ import { Condition } from '../../util';
 import { WindowClickContext } from '../../contexts/WindowClickContext';
 import styles from './workout.module.scss';
 import { CloseIcon } from '../icons';
+import { AppState } from '../../redux/reducers';
+import { addWorkouts, updateWorkoutExercises } from '../../redux/actions/workouts';
 
 interface Props {
-  workout: Workout;
-  updateWorkout(workout: Workout): void;
+  workoutId: string;
   isNewWorkout?: boolean;
 }
 
-const useWorkout = (): {
+const useWorkout = (
+  workoutId: string
+): {
   workout: Workout | null;
-  setWorkout(newWorkout: Workout | null): void;
   isNewWorkout?: boolean;
 } => {
-  const [workout, setWorkout] = useState<Workout | null>(null);
-  const { workoutId } = useParams<{ workoutId: string }>();
   const { state } = useLocation<{ isNewWorkout?: boolean }>();
+  const dispatch = useDispatch();
+  const workout = useSelector<AppState, Workout | null>(
+    state => state.workouts.workouts[`${workoutId}`] || null
+  );
 
   useEffect(() => {
     const sub = workoutService
@@ -41,31 +46,24 @@ const useWorkout = (): {
         })
       )
       .subscribe(w => {
-        setWorkout(w);
+        dispatch(addWorkouts([w]));
       });
 
     return () => sub.unsubscribe();
-  }, [workoutId, state]);
+  }, [workoutId, state, dispatch]);
 
-  return { workout, setWorkout, isNewWorkout: state?.isNewWorkout };
+  return { workout, isNewWorkout: state?.isNewWorkout };
 };
 
 const withWorkout = WrappedComponent => () => {
-  const { workout, setWorkout, isNewWorkout } = useWorkout();
+  const { workoutId } = useParams<{ workoutId: string }>();
+  const { workout, isNewWorkout } = useWorkout(workoutId);
 
-  const updateWorkout = useCallback(
-    (w: Workout) => {
-      setWorkout(w);
-      workoutService.updateWorkout(w).subscribe(() => {});
-    },
-    [setWorkout]
-  );
+  if (!workout) {
+    return <div>loading...</div>;
+  }
 
-  if (!workout) return null;
-
-  return (
-    <WrappedComponent workout={workout} isNewWorkout={isNewWorkout} updateWorkout={updateWorkout} />
-  );
+  return <WrappedComponent workoutId={workoutId} isNewWorkout={isNewWorkout} />;
 };
 
 const ExerciseSearchInput = (props: { onExerciseSelect(e: ExerciseDatabaseType): void }) => {
@@ -79,6 +77,7 @@ const ExerciseSearchInput = (props: { onExerciseSelect(e: ExerciseDatabaseType):
   const onExerciseClick = useCallback(
     ex => {
       setExerciseSearchResult([]);
+      setExerciseSearchVal('');
       onExerciseSelect(ex);
     },
     [onExerciseSelect]
@@ -263,8 +262,14 @@ const ExerciseItem = memo(
                 <span style={{ color: '#ec5335' }}>{dataError}</span>
               </div>
             </Condition>
-            <button onClick={onDoneNewSetClick}>Done</button>
-            <button onClick={() => setNewSet(undefined)}>Cancel</button>
+            <div className={styles.buttons}>
+              <button className={styles.buttons__confirm} onClick={onDoneNewSetClick}>
+                Done
+              </button>
+              <button className={styles.buttons__cancel} onClick={() => setNewSet(undefined)}>
+                Cancel
+              </button>
+            </div>
           </div>
         );
       }
@@ -311,39 +316,51 @@ const ExerciseItem = memo(
 );
 
 const WorkoutItem = (props: Props) => {
-  const { workout, updateWorkout, isNewWorkout } = props;
+  const { workoutId, isNewWorkout } = props;
+  const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState<boolean>(!!isNewWorkout);
   const history = useHistory();
+  const workout = useSelector<AppState, Workout>(
+    state => state.workouts.workouts[`${workoutId}`] || null
+  );
+  const exercises = useSelector<AppState, Exercise[]>(
+    state => state.workouts.workoutsExercises[`${workoutId}`] || []
+  );
 
   const workoutDate = useMemo(() => DateHelper.getDateFormat(workout.startTime), [
     workout.startTime
   ]);
 
+  const onUpdateExercises = useCallback(
+    (exercises: Exercise[]) => {
+      dispatch(updateWorkoutExercises(workoutId, exercises));
+    },
+    [workoutId, dispatch]
+  );
+
   const onExerciseUpdate = useCallback(
     (ex: Exercise) => {
-      const updatedExercises = workout.exercises.map(e => {
+      const updatedExercises = exercises.map(e => {
         if (e.id === ex.id) return ex;
         return e;
       });
-      const updatedWorkout = { ...workout, exercises: updatedExercises };
       setIsEditing(true);
-      updateWorkout(updatedWorkout);
+      onUpdateExercises(updatedExercises);
     },
-    [workout, updateWorkout]
+    [exercises, onUpdateExercises]
   );
 
   const onDeleteExercises = useCallback(
     (id: string) => {
-      const updatedExercises = workout.exercises.filter(e => e.id !== id);
-      const updatedWorkout = { ...workout, exercises: updatedExercises };
+      const updatedExercises = exercises.filter(e => e.id !== id);
       setIsEditing(true);
-      updateWorkout(updatedWorkout);
+      onUpdateExercises(updatedExercises);
     },
-    [workout, updateWorkout]
+    [exercises, onUpdateExercises]
   );
 
-  const exercises = useMemo(() => {
-    return workout.exercises.map(ex => (
+  const exercisesTmpl = useMemo(() => {
+    return exercises.map(ex => (
       <ExerciseItem
         key={ex.id + ex.startTime}
         exercise={ex}
@@ -351,7 +368,7 @@ const WorkoutItem = (props: Props) => {
         onDeleteExercises={onDeleteExercises}
       />
     ));
-  }, [workout.exercises, onExerciseUpdate, onDeleteExercises]);
+  }, [exercises, onExerciseUpdate, onDeleteExercises]);
 
   const onExerciseSelect = useCallback(
     (ex: ExerciseDatabaseType) => {
@@ -361,17 +378,18 @@ const WorkoutItem = (props: Props) => {
         startTime: DateHelper.getCurrentDate(),
         endTime: ''
       };
-      const updatedWorkout = { ...workout, exercises: [...workout.exercises, newEx] };
+      const updatedExercises = [...exercises, newEx];
       setIsEditing(true);
-      updateWorkout(updatedWorkout);
+      onUpdateExercises(updatedExercises);
     },
-    [workout, updateWorkout]
+    [exercises, onUpdateExercises]
   );
 
   const onSaveClick = useCallback(() => {
-    workoutService.saveWorkout(workout).subscribe(() => {});
-    history.push('/');
-  }, [workout, history]);
+    workoutService.saveWorkout({ ...workout, exercises }).subscribe(() => {
+      history.push('/');
+    });
+  }, [workout, exercises, history]);
 
   const onCancelClick = useCallback(() => {
     setIsEditing(false);
@@ -386,11 +404,15 @@ const WorkoutItem = (props: Props) => {
       </div>
       <div>
         <ExerciseSearchInput onExerciseSelect={onExerciseSelect} />
-        <div>{exercises}</div>
+        <div>{exercisesTmpl}</div>
         <Condition renderCondition={isEditing}>
-          <div>
-            <button onClick={onSaveClick}>Save</button>
-            <button onClick={onCancelClick}>Cancel</button>
+          <div className={styles.buttons}>
+            <button className={styles.buttons__confirm} onClick={onSaveClick}>
+              Save
+            </button>
+            <button className={styles.buttons__cancel} onClick={onCancelClick}>
+              Cancel
+            </button>
           </div>
         </Condition>
       </div>
