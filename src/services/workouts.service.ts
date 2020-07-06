@@ -80,4 +80,12 @@ export class WorkoutService {
     }
     return of(null).pipe(delay(300));
   }
+
+  deleteWorkout(id: string): Observable<any> {
+    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
+    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
+    const newWorkouts = workouts.filter(w => w.id !== id);
+    localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
+    return of('').pipe(delay(300));
+  }
 }

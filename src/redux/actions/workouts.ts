@@ -27,3 +27,5 @@ export const setWorkoutExercises = ca(
     exercises
   })
 );
+
+export const deleteWorkout = ca('DELETE_WORKOUT', (workoutId: string) => ({ workoutId }));

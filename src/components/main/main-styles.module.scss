@@ -27,6 +27,10 @@
 }
 
 .workoutItem {
+  display: grid;
+  grid-template-columns: 1fr 38px;
+  column-gap: 15px;
+  align-items: center;
   width: 600px;
   padding: .75em 1em .5em;
   border-radius: 12px;

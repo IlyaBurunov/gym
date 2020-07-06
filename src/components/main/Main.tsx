@@ -5,9 +5,9 @@ import { workoutService } from '../../services/static-instances';
 import { Workout } from '../../models/workouts';
 import { DateHelper } from '../../helpers/date-helper';
 import styles from './main-styles.module.scss';
-import { PlusIcon } from '../icons';
+import { PlusIcon, CloseIcon } from '../icons';
 import { AppState } from '../../redux/reducers';
-import { getUsersWorkouts } from '../../redux/actions/workouts';
+import { getUsersWorkouts, deleteWorkout } from '../../redux/actions/workouts';
 
 const useWorkouts = (config: { userId: string }) => {
   const { userId } = config;
@@ -23,13 +23,26 @@ const useWorkouts = (config: { userId: string }) => {
 
 const WorkoutsListItem = memo((props: { workoutId: string }) => {
   const { workoutId } = props;
+  const dispatch = useDispatch();
+
+  const onDeleteClick = () => {
+    workoutService.deleteWorkout(workoutId).subscribe(() => {
+      dispatch(deleteWorkout(workoutId));
+    });
+  };
+
   const workout = useSelector<AppState, Workout>(state => state.workouts.workouts[`${workoutId}`]);
   return (
-    <Link to={`/workout/${workout.id}`} className={styles.workoutItem}>
-      <span>
-        {workout.title} {DateHelper.getDateFormat(workout.startTime)}
-      </span>
-    </Link>
+    <div className={styles.workoutItem}>
+      <Link to={`/workout/${workout.id}`}>
+        <span>
+          {workout.title} {DateHelper.getDateFormat(workout.startTime)}
+        </span>
+      </Link>
+      <button onClick={onDeleteClick}>
+        <CloseIcon />
+      </button>
+    </div>
   );
 });
 
