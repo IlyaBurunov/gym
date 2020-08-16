@@ -12,7 +12,11 @@ import { WindowClickContext } from '../../contexts/WindowClickContext';
 import styles from './workout.module.scss';
 import { CloseIcon } from '../icons';
 import { AppState } from '../../redux/reducers';
-import { addWorkouts, updateWorkoutExercises } from '../../redux/actions/workouts';
+import {
+  addWorkouts,
+  updateWorkoutExercises,
+  updateWorkoutTitle
+} from '../../redux/actions/workouts';
 
 interface Props {
   workoutId: string;
@@ -70,7 +74,7 @@ const withWorkout = WrappedComponent => () => {
   return <WrappedComponent workoutId={workoutId} isNewWorkout={isNewWorkout} />;
 };
 
-const ExerciseSearchInput = (props: { onExerciseSelect(e: ExerciseDatabaseType): void }) => {
+const ExerciseSearchInput = memo((props: { onExerciseSelect(e: ExerciseDatabaseType): void }) => {
   const { onExerciseSelect } = props;
   const [exerciseSearchVal, setExerciseSearchVal] = useState<string>('');
   const [exerciseSearchResult, setExerciseSearchResult] = useState<ExerciseDatabaseType[]>([]);
@@ -151,7 +155,7 @@ const ExerciseSearchInput = (props: { onExerciseSelect(e: ExerciseDatabaseType):
       </Condition>
     </div>
   );
-};
+});
 
 const ExerciseItem = memo(
   (props: {
@@ -319,7 +323,47 @@ const ExerciseItem = memo(
   }
 );
 
-const WorkoutItem = (props: Props) => {
+const WorkoutTitle = memo((props: { workoutId: string; workoutTitle: string }) => {
+  const { workoutId, workoutTitle } = props;
+  const [title, setTitle] = useState(workoutTitle);
+  const dispatch = useDispatch();
+  const isTitleChanged = title !== workoutTitle;
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.currentTarget.value;
+    setTitle(val);
+  };
+
+  const onSaveClick = () => {
+    console.log(workoutTitle);
+    workoutService.updateTitle(workoutId, title).subscribe(() => {
+      console.log('updateTitle');
+      dispatch(updateWorkoutTitle(workoutId, title));
+    });
+  };
+
+  const onCancelClick = () => {
+    setTitle(workoutTitle);
+  };
+
+  return (
+    <div className={styles.header}>
+      <input value={title} onChange={onChange} placeholder={'Type title'} />
+      <Condition renderCondition={isTitleChanged}>
+        <div className={styles.buttons}>
+          <button className={styles.buttons__confirm} onClick={onSaveClick}>
+            Save
+          </button>
+          <button className={styles.buttons__cancel} onClick={onCancelClick}>
+            Cancel
+          </button>
+        </div>
+      </Condition>
+    </div>
+  );
+});
+
+const WorkoutItem = memo((props: Props) => {
   const { workoutId, isNewWorkout } = props;
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState<boolean>(!!isNewWorkout);
@@ -403,7 +447,7 @@ const WorkoutItem = (props: Props) => {
   return (
     <div className={styles.wrapper}>
       <div>
-        <div className={styles.header}>{workout.title}</div>
+        <WorkoutTitle workoutId={workout.id} workoutTitle={workout.title} />
         <div className={styles.date}>{workoutDate}</div>
       </div>
       <div>
@@ -422,6 +466,6 @@ const WorkoutItem = (props: Props) => {
       </div>
     </div>
   );
-};
+});
 const WorkoutComponent = withWorkout(WorkoutItem);
 export { WorkoutComponent as Workout };
