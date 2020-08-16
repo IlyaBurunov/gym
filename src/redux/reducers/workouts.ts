@@ -3,7 +3,12 @@ import produce from 'immer';
 
 import { Workout } from '../../models/workouts';
 
-import { addWorkouts, setWorkoutExercises, deleteWorkout } from '../actions/workouts';
+import {
+  addWorkouts,
+  setWorkoutExercises,
+  deleteWorkout,
+  updateWorkoutTitle
+} from '../actions/workouts';
 
 export type State = {
   workouts: Record<string, Workout>;
@@ -51,6 +56,11 @@ export default handleActions(
         delete draft.workouts[workoutId];
         const idsIndex = draft.workoutsIds.indexOf(workoutId);
         draft.workoutsIds.splice(idsIndex, 1);
+      }),
+    [updateWorkoutTitle]: (state, { payload: { workoutId, title } }) =>
+      produce(state, draft => {
+        const workout = draft.workouts[workoutId];
+        draft.workouts[workoutId] = { ...workout, title };
       })
   },
   initialState

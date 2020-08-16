@@ -29,3 +29,11 @@ export const setWorkoutExercises = ca(
 );
 
 export const deleteWorkout = ca('DELETE_WORKOUT', (workoutId: string) => ({ workoutId }));
+
+export const updateWorkoutTitle = ca(
+  'UPDATE_WORKOUT_TITLE',
+  (workoutId: string, title: string) => ({
+    workoutId,
+    title
+  })
+);
