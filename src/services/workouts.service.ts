@@ -88,4 +88,17 @@ export class WorkoutService {
     localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
     return of('').pipe(delay(300));
   }
+
+  updateTitle(id: string, title: string): Observable<any> {
+    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
+    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
+    const newWorkouts = workouts.map(w => {
+      if (w.id === id) {
+        return { ...w, title };
+      }
+      return w;
+    });
+    localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
+    return of(title).pipe(delay(300));
+  }
 }
