@@ -1,13 +1,19 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, Link } from 'react-router-dom';
-import { workoutService } from '../../services/static-instances';
-import { Workout } from '../../models/workouts';
-import { DateHelper } from '../../helpers/date-helper';
-import styles from './main-styles.module.scss';
-import { PlusIcon, CloseIcon } from '../icons';
+
 import { AppState } from '../../redux/reducers';
 import { getUsersWorkouts, deleteWorkout } from '../../redux/actions/workouts';
+
+import { Workout } from '../../models/workouts';
+
+import { workoutService } from '../../services/static-instances';
+
+import { DateHelper } from '../../helpers/date-helper';
+
+import { PlusIcon, DeleteIcon } from '../icons';
+
+import styles from './main-styles.module.scss';
 
 const useWorkouts = (config: { userId: string }) => {
   const { userId } = config;
@@ -40,7 +46,7 @@ const WorkoutsListItem = memo((props: { workoutId: string }) => {
         </span>
       </Link>
       <button onClick={onDeleteClick}>
-        <CloseIcon />
+        <DeleteIcon />
       </button>
     </div>
   );
@@ -70,7 +76,7 @@ const Main = () => {
         <div className={styles.headerWrapper}>
           <h1>Gym app</h1>
           <button onClick={onAddWorkoutClick}>
-            <PlusIcon />
+            <PlusIcon fontSize="small" />
           </button>
         </div>
       </header>

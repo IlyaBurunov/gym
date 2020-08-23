@@ -10,7 +10,7 @@ import { DateHelper } from '../../helpers/date-helper';
 import { Condition } from '../../util';
 import { WindowClickContext } from '../../contexts/WindowClickContext';
 import styles from './workout.module.scss';
-import { CloseIcon } from '../icons';
+import { DeleteIcon } from '../icons';
 import { AppState } from '../../redux/reducers';
 import {
   addWorkouts,
@@ -211,7 +211,7 @@ const ExerciseItem = memo(
           </div>
           <div>
             <button>
-              <CloseIcon />
+              <DeleteIcon />
             </button>
           </div>
         </div>
@@ -306,7 +306,7 @@ const ExerciseItem = memo(
           <div className={styles.exerciseTitle}>
             <span>{exercise.name}</span>
             <button onClick={() => onDeleteExercises(exercise.id)}>
-              <CloseIcon />
+              <DeleteIcon />
             </button>
           </div>
           <button onClick={onAddNewSetClick}>Add new set</button>
