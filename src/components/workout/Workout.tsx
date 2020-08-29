@@ -3,20 +3,29 @@ import { useParams, useLocation, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
+
 import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../models/workouts';
-import { workoutService, searchService } from '../../services/static-instances';
 import { ExerciseDatabaseType } from '../../database/exercises';
-import { DateHelper } from '../../helpers/date-helper';
-import { Condition } from '../../util';
-import { WindowClickContext } from '../../contexts/WindowClickContext';
-import styles from './workout.module.scss';
-import { DeleteIcon } from '../icons';
 import { AppState } from '../../redux/reducers';
+
 import {
   addWorkouts,
   updateWorkoutExercises,
   updateWorkoutTitle
 } from '../../redux/actions/workouts';
+
+import { workoutService, searchService } from '../../services/static-instances';
+
+import { DateHelper } from '../../helpers/date-helper';
+import { Condition } from '../../util';
+
+import { WindowClickContext } from '../../contexts/WindowClickContext';
+
+import IconButton from '@material-ui/core/IconButton';
+
+import { DeleteIcon } from '../icons';
+
+import styles from './workout.module.scss';
 
 interface Props {
   workoutId: string;
@@ -210,9 +219,9 @@ const ExerciseItem = memo(
             </Condition>
           </div>
           <div>
-            <button>
+            <IconButton aria-label="delete">
               <DeleteIcon />
-            </button>
+            </IconButton>
           </div>
         </div>
       ));
@@ -305,9 +314,9 @@ const ExerciseItem = memo(
         <div>
           <div className={styles.exerciseTitle}>
             <span>{exercise.name}</span>
-            <button onClick={() => onDeleteExercises(exercise.id)}>
+            <IconButton onClick={() => onDeleteExercises(exercise.id)} aria-label="delete">
               <DeleteIcon />
-            </button>
+            </IconButton>
           </div>
           <button onClick={onAddNewSetClick}>Add new set</button>
         </div>

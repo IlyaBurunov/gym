@@ -2,6 +2,8 @@ import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, Link } from 'react-router-dom';
 
+import IconButton from '@material-ui/core/IconButton';
+
 import { AppState } from '../../redux/reducers';
 import { getUsersWorkouts, deleteWorkout } from '../../redux/actions/workouts';
 
@@ -45,9 +47,9 @@ const WorkoutsListItem = memo((props: { workoutId: string }) => {
           {workout.title} {DateHelper.getDateFormat(workout.startTime)}
         </span>
       </Link>
-      <button onClick={onDeleteClick}>
+      <IconButton onClick={onDeleteClick} aria-label="delete">
         <DeleteIcon />
-      </button>
+      </IconButton>
     </div>
   );
 });
@@ -75,9 +77,9 @@ const Main = () => {
       <header className={styles.header}>
         <div className={styles.headerWrapper}>
           <h1>Gym app</h1>
-          <button onClick={onAddWorkoutClick}>
+          <IconButton onClick={onAddWorkoutClick} aria-label="add workout">
             <PlusIcon fontSize="small" />
-          </button>
+          </IconButton>
         </div>
       </header>
       <div className={styles.wrapper}>
