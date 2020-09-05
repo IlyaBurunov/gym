@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import IconButton from '@material-ui/core/IconButton';
 
@@ -13,7 +13,8 @@ import { workoutService } from '../../services/static-instances';
 
 import { DateHelper } from '../../helpers/date-helper';
 
-import { PlusIcon, DeleteIcon } from '../icons';
+import { Header } from '../../view/components/Header';
+import { DeleteIcon } from '../icons';
 
 import styles from './main-styles.module.scss';
 
@@ -55,8 +56,6 @@ const WorkoutsListItem = memo((props: { workoutId: string }) => {
 });
 
 const Main = () => {
-  const history = useHistory();
-
   const { workoutsIds } = useWorkouts({ userId: '1' });
 
   const workoutsTmpl = useMemo(() => {
@@ -65,23 +64,9 @@ const Main = () => {
     });
   }, [workoutsIds]);
 
-  const onAddWorkoutClick = useCallback(() => {
-    workoutService.getNewWorkoutId().subscribe(id => {
-      const url = `/workout/${id}`;
-      history.push(url, { isNewWorkout: true });
-    });
-  }, [history]);
-
   return (
     <div>
-      <header className={styles.header}>
-        <div className={styles.headerWrapper}>
-          <h1>Gym app</h1>
-          <IconButton onClick={onAddWorkoutClick} aria-label="add workout">
-            <PlusIcon fontSize="small" />
-          </IconButton>
-        </div>
-      </header>
+      <Header />
       <div className={styles.wrapper}>
         <div className={styles.workouts}>{workoutsTmpl}</div>
       </div>
