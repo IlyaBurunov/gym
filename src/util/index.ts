@@ -1,1 +1,1 @@
-export { Condition } from './Condition';
+export { If } from './If';

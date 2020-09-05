@@ -17,7 +17,7 @@ import {
 import { workoutService, searchService } from '../../services/static-instances';
 
 import { DateHelper } from '../../helpers/date-helper';
-import { Condition } from '../../util';
+import { If } from '../../util';
 
 import { WindowClickContext } from '../../contexts/WindowClickContext';
 
@@ -159,9 +159,9 @@ const ExerciseSearchInput = memo((props: { onExerciseSelect(e: ExerciseDatabaseT
         onChange={exerciseInputChange}
         placeholder={'Type a exercise that you want add'}
       />
-      <Condition renderCondition={lastClickInSearchZone && !!exerciseSearchVal}>
+      <If condition={lastClickInSearchZone && !!exerciseSearchVal}>
         <div className={styles.exercisesResult}>{searchResults}</div>
-      </Condition>
+      </If>
     </div>
   );
 });
@@ -211,12 +211,12 @@ const ExerciseItem = memo(
         <div key={`w${s.weight}i${i}`} className={styles.exerciseSet}>
           <div className={styles.exerciseSet__stats}>
             <div>Reps count: {s.repsCount}</div>
-            <Condition renderCondition={!!s.weightType}>
+            <If condition={!!s.weightType}>
               <div>
                 Weight: {s.weight}
                 {getWeightAbr(s.weightType)}
               </div>
-            </Condition>
+            </If>
           </div>
           <div>
             <IconButton aria-label="delete">
@@ -256,7 +256,7 @@ const ExerciseItem = memo(
                 onChange={e => onNewSetWeightTypeSelect(e, 'repsCount')}
               />
             </label>
-            <Condition renderCondition={!!newSet.weightType}>
+            <If condition={!!newSet.weightType}>
               <label>
                 Weight
                 <input
@@ -273,12 +273,12 @@ const ExerciseItem = memo(
                 <option value={WeightType.Kilogram}>{getWeightAbr(WeightType.Kilogram)}</option>
                 <option value={WeightType.LB}>{getWeightAbr(WeightType.LB)}</option>
               </select>
-            </Condition>
-            <Condition renderCondition={!!dataError}>
+            </If>
+            <If condition={!!dataError}>
               <div>
                 <span style={{ color: '#ec5335' }}>{dataError}</span>
               </div>
-            </Condition>
+            </If>
             <div className={styles.buttons}>
               <button className={styles.buttons__confirm} onClick={onDoneNewSetClick}>
                 Done
@@ -321,12 +321,12 @@ const ExerciseItem = memo(
           <button onClick={onAddNewSetClick}>Add new set</button>
         </div>
         {newSetTmpl}
-        <Condition renderCondition={!!sets.length}>
+        <If condition={!!sets.length}>
           <div>
             <div>Sets</div>
             <div className={styles.exerciseSets}>{sets}</div>
           </div>
-        </Condition>
+        </If>
       </div>
     );
   }
@@ -358,7 +358,7 @@ const WorkoutTitle = memo((props: { workoutId: string; workoutTitle: string }) =
   return (
     <div className={styles.header}>
       <input value={title} onChange={onChange} placeholder={'Type title'} />
-      <Condition renderCondition={isTitleChanged}>
+      <If condition={isTitleChanged}>
         <div className={styles.buttons}>
           <button className={styles.buttons__confirm} onClick={onSaveClick}>
             Save
@@ -367,7 +367,7 @@ const WorkoutTitle = memo((props: { workoutId: string; workoutTitle: string }) =
             Cancel
           </button>
         </div>
-      </Condition>
+      </If>
     </div>
   );
 });
@@ -462,7 +462,7 @@ const WorkoutItem = memo((props: Props) => {
       <div>
         <ExerciseSearchInput onExerciseSelect={onExerciseSelect} />
         <div>{exercisesTmpl}</div>
-        <Condition renderCondition={isEditing}>
+        <If condition={isEditing}>
           <div className={styles.buttons}>
             <button className={styles.buttons__confirm} onClick={onSaveClick}>
               Save
@@ -471,7 +471,7 @@ const WorkoutItem = memo((props: Props) => {
               Cancel
             </button>
           </div>
-        </Condition>
+        </If>
       </div>
     </div>
   );
