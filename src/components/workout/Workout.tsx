@@ -22,6 +22,12 @@ import { If } from '../../util';
 import { WindowClickContext } from '../../contexts/WindowClickContext';
 
 import IconButton from '@material-ui/core/IconButton';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
 
 import { DeleteIcon } from '../icons';
 
@@ -100,9 +106,9 @@ const ExerciseSearchInput = memo((props: { onExerciseSelect(e: ExerciseDatabaseT
     [onExerciseSelect]
   );
 
-  const searchResults = useMemo(() => {
+  const searchResults = useMemo<JSX.Element[]>(() => {
     if (!exerciseSearchResult.length) {
-      return null;
+      return [];
     }
 
     return exerciseSearchResult.map(ex => {
@@ -145,21 +151,22 @@ const ExerciseSearchInput = memo((props: { onExerciseSelect(e: ExerciseDatabaseT
     return () => s.unsubscribe();
   }, [stream, lastClickInSearchZone]);
 
-  const exerciseInputChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+  const exerciseInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
     setExerciseSearchVal(value);
   }, []);
 
   return (
-    <div ref={inputBlockRef}>
-      <input
+    <div className={styles.exerciseSearch} ref={inputBlockRef}>
+      <TextField
+        label="Exercise"
         className={styles.exerciseInput}
-        type={'search'}
+        type="search"
         value={exerciseSearchVal}
         onChange={exerciseInputChange}
         placeholder={'Type a exercise that you want add'}
       />
-      <If condition={lastClickInSearchZone && !!exerciseSearchVal}>
+      <If condition={lastClickInSearchZone && !!exerciseSearchVal && searchResults?.length > 0}>
         <div className={styles.exercisesResult}>{searchResults}</div>
       </If>
     </div>
@@ -228,66 +235,80 @@ const ExerciseItem = memo(
     }, [exercise.sets, getWeightAbr]);
 
     const onNewSetWeightTypeSelect = useCallback(
-      (
-        e: React.FormEvent<HTMLSelectElement | HTMLInputElement>,
-        propName: 'repsCount' | 'weight' | 'weightType'
-      ) => {
-        const val =
-          propName === 'repsCount' || propName === 'weight'
-            ? +e.currentTarget.value
-            : e.currentTarget.value;
+      (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
+        const value = Number(e.target.value);
         setNewSet(nS => {
-          if (nS) return { ...nS, [propName]: +val };
+          if (nS) return { ...nS, weightType: value };
         });
       },
       []
     );
 
+    const onNewSetRepsCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = Number(e.currentTarget.value);
+      setNewSet(nS => {
+        if (nS) return { ...nS, repsCount: val };
+      });
+    };
+
+    const onNewSetWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = Number(e.currentTarget.value);
+      setNewSet(nS => {
+        if (nS) return { ...nS, weight: val };
+      });
+    };
+
+    const onCancelNewSetClick = () => {
+      setNewSet(undefined);
+    };
+
     const newSetTmpl = useMemo(() => {
       if (newSet) {
         return (
-          <div>
-            <label>
-              Reps count
-              <input
+          <>
+            <div className={styles.exerciseNewSet}>
+              <TextField
+                label="Reps count"
                 type="number"
-                min="1"
                 value={newSet.repsCount || ''}
-                onChange={e => onNewSetWeightTypeSelect(e, 'repsCount')}
+                onChange={onNewSetRepsCountChange}
               />
-            </label>
-            <If condition={!!newSet.weightType}>
-              <label>
-                Weight
-                <input
+              <If condition={!!newSet.weightType}>
+                <TextField
+                  label="Weight"
                   type="number"
-                  min="1"
                   value={newSet.weight || ''}
-                  onChange={e => onNewSetWeightTypeSelect(e, 'weight')}
+                  onChange={onNewSetWeightChange}
                 />
-              </label>
-              <select
-                value={newSet.weightType}
-                onChange={e => onNewSetWeightTypeSelect(e, 'weightType')}
-              >
-                <option value={WeightType.Kilogram}>{getWeightAbr(WeightType.Kilogram)}</option>
-                <option value={WeightType.LB}>{getWeightAbr(WeightType.LB)}</option>
-              </select>
-            </If>
-            <If condition={!!dataError}>
-              <div>
-                <span style={{ color: '#ec5335' }}>{dataError}</span>
-              </div>
-            </If>
-            <div className={styles.buttons}>
-              <button className={styles.buttons__confirm} onClick={onDoneNewSetClick}>
-                Done
-              </button>
-              <button className={styles.buttons__cancel} onClick={() => setNewSet(undefined)}>
-                Cancel
-              </button>
+                <FormControl>
+                  <InputLabel id="weght-unut">Weight unit</InputLabel>
+                  <Select
+                    labelId="weght-unut"
+                    value={newSet.weightType}
+                    onChange={onNewSetWeightTypeSelect}
+                  >
+                    <MenuItem value={WeightType.Kilogram}>
+                      {getWeightAbr(WeightType.Kilogram)}
+                    </MenuItem>
+                    <MenuItem value={WeightType.LB}>{getWeightAbr(WeightType.LB)}</MenuItem>
+                  </Select>
+                </FormControl>
+              </If>
+              <If condition={!!dataError}>
+                <div>
+                  <span style={{ color: '#ec5335' }}>{dataError}</span>
+                </div>
+              </If>
             </div>
-          </div>
+            <div className={styles.buttons}>
+              <Button variant="contained" color="primary" onClick={onDoneNewSetClick}>
+                Done
+              </Button>
+              <Button variant="contained" color="secondary" onClick={onCancelNewSetClick}>
+                Cancel
+              </Button>
+            </div>
+          </>
         );
       }
     }, [getWeightAbr, onNewSetWeightTypeSelect, newSet, onDoneNewSetClick, dataError]);
@@ -310,7 +331,7 @@ const ExerciseItem = memo(
     }, [exercise.sets, exercise.unitType]);
 
     return (
-      <div>
+      <div className={styles.exercise}>
         <div>
           <div className={styles.exerciseTitle}>
             <span>{exercise.name}</span>
@@ -318,11 +339,13 @@ const ExerciseItem = memo(
               <DeleteIcon />
             </IconButton>
           </div>
-          <button onClick={onAddNewSetClick}>Add new set</button>
+          <Button variant="contained" color="primary" onClick={onAddNewSetClick}>
+            Add new set
+          </Button>
         </div>
         {newSetTmpl}
         <If condition={!!sets.length}>
-          <div>
+          <div className={styles.sets}>
             <div>Sets</div>
             <div className={styles.exerciseSets}>{sets}</div>
           </div>
@@ -461,15 +484,18 @@ const WorkoutItem = memo((props: Props) => {
       </div>
       <div>
         <ExerciseSearchInput onExerciseSelect={onExerciseSelect} />
-        <div>{exercisesTmpl}</div>
+        <div className={styles.exercises}>
+          <h2 className={styles.exercisesListTitle}>Exercises</h2>
+          {exercisesTmpl}
+        </div>
         <If condition={isEditing}>
           <div className={styles.buttons}>
-            <button className={styles.buttons__confirm} onClick={onSaveClick}>
+            <Button variant="contained" color="primary" onClick={onSaveClick}>
               Save
-            </button>
-            <button className={styles.buttons__cancel} onClick={onCancelClick}>
+            </Button>
+            <Button variant="contained" color="secondary" onClick={onCancelClick}>
               Cancel
-            </button>
+            </Button>
           </div>
         </If>
       </div>

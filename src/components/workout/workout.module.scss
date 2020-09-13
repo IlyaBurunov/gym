@@ -4,15 +4,19 @@
 }
 
 .header {
-  margin-bottom: 14px;
+  margin-bottom: .4em;
   font-style: normal;
   font-weight: 600;
-  font-size: 28px;
+  font-size: 1.75rem;
   line-height: 38px;
 }
 
 .date {
   color: #617382;
+}
+
+.exerciseSearch {
+  margin-top: 2em;
 }
 
 .exerciseInput {
@@ -43,6 +47,26 @@
   }
 }
 
+.exercises {
+  margin-top: 20px;
+}
+
+.exercise {
+  margin-top: 1em;
+  border: 1px solid #040207;
+  padding: 2em;
+  width: fit-content;
+  border-radius: 1em;
+}
+
+.exercisesListTitle {
+  font-size: 25px;
+}
+
+.sets {
+  margin-top: 2em;
+}
+
 .exerciseTitle {
   width: 600px;
   padding: .5em 1em;
@@ -50,6 +74,7 @@
   justify-content: space-between;
   align-items: center;
   font-weight: 700;
+  font-size: 20px;
 }
 
 .exerciseSets {
@@ -70,16 +95,19 @@
   }
 }
 
+.exerciseNewSet {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 200px 200px 100px;
+  column-gap: 30px;
+}
+
 .buttons {
   display: flex;
   align-items: center;
+  margin-top: 2em;
 
-  &__confirm {
-    color: #3095f3;
-  }
-
-  &__cancel {
-    margin-left: 10px;
-    color: #f7173f;
+  :last-child {
+    margin-left: .5em;
   }
 }
