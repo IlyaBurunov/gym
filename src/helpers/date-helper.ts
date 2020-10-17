@@ -1,5 +1,13 @@
 import dayJs from 'dayjs';
 
+export function getDateFormat(date: string): string {
+  return dayJs(date).format('DD MMM YYYY');
+}
+
+export function getCurrentDate(): string {
+  return dayJs().format();
+}
+
 export class DateHelper {
   static getDateFormat = (date: string): string => {
     return dayJs(date).format('DD MMM YYYY');

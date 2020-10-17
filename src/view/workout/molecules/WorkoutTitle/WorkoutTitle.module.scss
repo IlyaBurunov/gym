@@ -1,0 +1,17 @@
+.header {
+  margin-bottom: .4em;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 38px;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  margin-top: 1em;
+
+  :last-child {
+    margin-left: .5em;
+  }
+}

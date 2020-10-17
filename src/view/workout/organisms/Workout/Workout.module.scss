@@ -1,0 +1,21 @@
+.date {
+  color: #617382;
+}
+
+.exercises {
+  margin-top: 20px;
+}
+
+.exercisesListTitle {
+  font-size: 25px;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  margin-top: 2em;
+
+  :last-child {
+    margin-left: .5em;
+  }
+}

@@ -1,14 +1,3 @@
-.wrapper {
-  width: 1200px;
-  margin: 0 auto;
-  margin-top: 2em;
-}
-
-.workouts {
-  display: grid;
-  row-gap: 1em;
-}
-
 .workoutItem {
   display: grid;
   grid-template-columns: 1fr 38px;

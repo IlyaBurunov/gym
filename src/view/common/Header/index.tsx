@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import IconButton from '@material-ui/core/IconButton';
 
@@ -22,7 +22,9 @@ export function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.headerWrapper}>
-        <h1>Gym app</h1>
+        <h1>
+          <Link to="/">Gym app</Link>{' '}
+        </h1>
         <IconButton onClick={onAddWorkoutClick} aria-label="add workout">
           <PlusIcon fontSize="small" />
         </IconButton>
