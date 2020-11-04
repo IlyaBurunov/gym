@@ -27,9 +27,9 @@ const RootRoute = (p: RouteChildrenProps) => {
       <>
         <Switch>
           <Route path={RouterConfig.workoutPath} render={renderWorkoutPage} />
-          <Route path={RouterConfig.rootPath} render={renderWorkoutsPage} />
+          <Route path={RouterConfig.workoutsPath} render={renderWorkoutsPage} />
           <Route>
-            <Redirect to="/" />
+            <Redirect to="/workouts" />
           </Route>
         </Switch>
       </>

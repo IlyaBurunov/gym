@@ -1,4 +1,4 @@
 export const RouterConfig = {
-  rootPath: '/',
+  workoutsPath: '/workouts',
   workoutPath: '/workout/:workoutId'
 };
