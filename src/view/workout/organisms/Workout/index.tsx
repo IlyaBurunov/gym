@@ -24,11 +24,9 @@ import css from './Workout.module.scss';
 
 function Workout(props: { workoutId: string }) {
   const { workoutId } = props;
-  // const { workoutId } = useParams<{ workoutId: string }>();
   const { state } = useLocation<{ isNewWorkout?: boolean }>();
   const history = useHistory();
   const dispatch = useDispatch();
-  // const { workout, loading } = useWorkout(workoutId, isNewWorkout);
   const [isEditing, setIsEditing] = useState<boolean>(Boolean(state?.isNewWorkout));
   const workout = useSelector<AppState, WorkoutType>(
     state => state.workouts.workouts[`${workoutId}`] || null
