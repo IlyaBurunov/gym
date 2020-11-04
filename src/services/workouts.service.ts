@@ -60,6 +60,7 @@ export class WorkoutService {
     if (isNew) {
       const newWorkouts = JSON.stringify(workouts.concat([newWorkout]));
       localStorage.setItem(AppConfig.workoutsKey, newWorkouts);
+      localStorage.removeItem(AppConfig.newWorkoutKey);
     } else {
       const newWorkouts = workouts.map(w => {
         if (w.id === workout.id) {
