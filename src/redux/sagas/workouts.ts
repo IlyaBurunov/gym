@@ -1,6 +1,6 @@
 import { put, call, takeEvery, all } from 'redux-saga/effects';
 
-import { workoutService } from '../../services/static-instances';
+import { workoutService } from '../../services';
 
 import { Action } from './index';
 

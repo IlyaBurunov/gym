@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Workout as WorkoutType, Exercise } from '../../../../models/workouts';
@@ -7,7 +7,7 @@ import { ExerciseDatabaseType } from '../../../../database/exercises';
 import { AppState } from '../../../../redux/reducers';
 
 import { getDateFormat, getCurrentDate } from '../../../../helpers/date-helper';
-import { workoutService } from '../../../../services/static-instances';
+import { workoutService } from '../../../../services';
 import { updateWorkoutExercises } from '../../../../redux/actions/workouts';
 
 import { Container } from '@material-ui/core';
@@ -24,13 +24,14 @@ import css from './Workout.module.scss';
 
 function Workout(props: { workoutId: string }) {
   const { workoutId } = props;
-  const { state } = useLocation<{ isNewWorkout?: boolean }>();
+
   const history = useHistory();
   const dispatch = useDispatch();
-  const [isEditing, setIsEditing] = useState<boolean>(Boolean(state?.isNewWorkout));
+  const [isEditing, setIsEditing] = useState<boolean>(true);
   const workout = useSelector<AppState, WorkoutType>(
     state => state.workouts.workouts[`${workoutId}`] || null
   );
+
   const exercises = useSelector<AppState, Exercise[]>(
     state => state.workouts.workoutsExercises[`${workoutId}`] || []
   );
@@ -46,6 +47,7 @@ function Workout(props: { workoutId: string }) {
 
   const onExerciseSelect = useCallback(
     (ex: ExerciseDatabaseType) => {
+      //@todo можно добавить возможность выбора кол-ва сетов при создании
       const newEx: Exercise = {
         ...ex,
         sets: [],
@@ -95,12 +97,14 @@ function Workout(props: { workoutId: string }) {
     return exercises.map(ex => (
       <ExerciseItem
         key={ex.id + ex.startTime}
+        workoutId={workoutId}
         exercise={ex}
         onExerciseUpdate={onExerciseUpdate}
+        //@todo в случае удаления можно показать попап конфирмации
         onDeleteExercises={onDeleteExercises}
       />
     ));
-  }, [exercises, onExerciseUpdate, onDeleteExercises]);
+  }, [workoutId, exercises, onExerciseUpdate, onDeleteExercises]);
 
   return (
     <Container maxWidth="lg">

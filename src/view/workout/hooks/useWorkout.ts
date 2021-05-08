@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { of } from 'rxjs';
-import { switchMap, finalize } from 'rxjs/operators';
+
+import { finalize } from 'rxjs/operators';
 
 import { addWorkouts } from '../../../redux/actions/workouts';
 
 import { Workout } from '../../../models/workouts';
 import { AppState } from '../../../redux/reducers';
 
-import { workoutService } from '../../../services/static-instances';
+import { workoutService } from '../../../services';
 
 export function useWorkout(
-  workoutId: string,
-  isNewWorkout?: boolean
+  workoutId: string
 ): {
   workout: Workout | null;
   loading: boolean;
@@ -25,26 +24,17 @@ export function useWorkout(
 
   useEffect(() => {
     setLoading(true);
-    const sub = workoutService
-      .getNewWorkout(workoutId)
-      .pipe(
-        finalize(() => setLoading(false)),
-        switchMap(newW => {
-          if (newW) {
-            return of(newW);
-          }
-          if (isNewWorkout) {
-            return workoutService.createWorkout(workoutId);
-          }
-          return workoutService.getWorkout(workoutId);
-        })
-      )
-      .subscribe(w => {
-        dispatch(addWorkouts([w]));
-      });
+    if (!workout || workoutId !== workout.id) {
+      const sub = workoutService
+        .getWorkout(workoutId)
+        .pipe(finalize(() => setLoading(false)))
+        .subscribe(w => {
+          dispatch(addWorkouts([w]));
+        });
 
-    return () => sub.unsubscribe();
-  }, [workoutId, isNewWorkout, dispatch]);
+      return () => sub.unsubscribe();
+    }
+  }, [workoutId, workout, dispatch]);
 
   return { workout, loading };
 }

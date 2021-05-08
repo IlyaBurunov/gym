@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import IconButton from '@material-ui/core/IconButton';
 
-import { workoutService } from '../../../../services/static-instances';
+import { workoutService } from '../../../../services';
 import { getDateFormat } from '../../../../helpers/date-helper';
 import { deleteWorkout } from '../../../../redux/actions/workouts';
 

@@ -1,16 +1,14 @@
 import React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { useWorkout } from '../hooks/useWorkout';
 
+// deprecated
 export const withWorkout = WrappedComponent => () => {
   const { workoutId } = useParams<{ workoutId: string }>();
+  const { workout } = useWorkout(workoutId);
 
-  console.log(useLocation());
-  const { state } = useLocation<{ isNewWorkout?: boolean }>();
-  const { workout, loading } = useWorkout(workoutId, state?.isNewWorkout);
-
-  if (!workout || loading) {
+  if (!workout) {
     return <div>loading...</div>;
   }
 

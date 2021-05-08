@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import Button from '@material-ui/core/Button';
 
-import { workoutService } from '../../../../services/static-instances';
+import { workoutService } from '../../../../services';
 
 import { updateWorkoutTitle } from '../../../../redux/actions/workouts';
 
@@ -23,7 +23,7 @@ function WorkoutTitle(props: { workoutId: string; workoutTitle: string }) {
   };
 
   const onSaveClick = () => {
-    workoutService.updateTitle(workoutId, title).subscribe(() => {
+    workoutService.updateWorkoutTitle(workoutId, title).subscribe(() => {
       dispatch(updateWorkoutTitle(workoutId, title));
     });
   };

@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { ExerciseDatabaseType } from '../../../../database/exercises';
 
-import { searchService } from '../../../../services/static-instances';
+import { searchService } from '../../../../services';
 import { WindowClickContext } from '../../../../contexts/WindowClickContext';
 
 import { If } from '../../../../util';

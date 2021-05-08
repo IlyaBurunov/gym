@@ -1,27 +1,115 @@
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { AppConfig } from '../configs/AppConfig';
-import { Workout, Exercise } from '../models/workouts';
+import { Workout, Exercise, Set } from '../models/workouts';
 import { ResultType } from '../models/result';
+
+function getStoredWorkouts(): Workout[] {
+  const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
+  const workouts = storageWorkouts ? JSON.parse(storageWorkouts) : [];
+
+  return workouts;
+}
+
+function getStoredWorkout(id: Workout['id']): Workout | null {
+  const workouts = getStoredWorkouts();
+  const workout = workouts.find(workout => workout.id === id);
+
+  return workout || null;
+}
+
+function addWorkoutToStorage(workout: Partial<Workout>) {
+  if (!workout.id) {
+    throw new Error('Can not add workout to storage without id');
+  }
+
+  const workouts = getStoredWorkouts();
+
+  localStorage.setItem(AppConfig.workoutsKey, JSON.stringify([...workouts, workout]));
+}
+
+function deleteWorkoutFromStorage(id: Workout['id']) {
+  const storedWorkout = getStoredWorkout(id);
+
+  if (storedWorkout === null) {
+    throw new Error(
+      `Can not delete stored workout, because there is no workout with ${id} id in storage`
+    );
+  }
+
+  const workouts = getStoredWorkouts().filter(work => work.id !== id);
+
+  localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(workouts));
+}
+
+function updateStoredWorkoutsByWorkout(workout: Partial<Workout>) {
+  if (!workout.id) {
+    throw new Error('Can not update stored workout without id');
+  }
+
+  const storedWorkout = getStoredWorkout(workout.id);
+
+  if (storedWorkout === null) {
+    throw new Error(
+      `Can not update stored workout, because there is no workout with ${workout.id} id in storage`
+    );
+  }
+
+  const workouts = getStoredWorkouts();
+  const newWorkout = { ...storedWorkout, ...workout };
+  const newWorkouts = workouts.map(storedWork =>
+    storedWork.id === workout.id ? newWorkout : storedWork
+  );
+
+  localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
+}
 
 export class WorkoutService {
   getWorkouts(userId: string): Observable<Workout[]> {
-    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
-    const workouts = storageWorkouts ? JSON.parse(storageWorkouts) : [];
+    const workouts = getStoredWorkouts();
     return of(workouts).pipe(delay(300));
   }
 
-  getWorkout(workoutId: string): Observable<Workout> {
-    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
-    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
-    const workout = workouts.find(w => w.id === workoutId);
-    return workout ? of(workout).pipe(delay(300)) : throwError("Workout doesn't exist");
+  getWorkout(workoutId: string): Observable<Workout | null> {
+    const workout = getStoredWorkout(workoutId);
+
+    return of(workout).pipe(delay(300));
   }
 
   getNewWorkoutId(): Observable<string> {
     return of(uuidv4()).pipe(delay(100));
+  }
+
+  createSet(set: Partial<Set>): Observable<Set> {
+    return of({ id: uuidv4(), ...set }).pipe(delay(300));
+  }
+
+  deleteSet(
+    workoutId: Workout['id'],
+    exerciseId: Exercise['id'],
+    setId: Set['id']
+  ): Observable<any> {
+    const newWorkout = getStoredWorkout(workoutId);
+
+    if (newWorkout === null) {
+      throw new Error(
+        `Can not delete set from workout with ${workoutId} id, because there is no workout in storage`
+      );
+    }
+
+    updateStoredWorkoutsByWorkout({
+      ...newWorkout,
+      exercises: newWorkout.exercises.map(exercise => {
+        if (exercise.id === exerciseId) {
+          return { ...exercise, sets: exercise.sets.filter(set => set.id !== setId) };
+        }
+
+        return exercise;
+      })
+    });
+    return of('').pipe(delay(300));
   }
 
   createWorkout(workoutId: string): Observable<Workout> {
@@ -33,12 +121,15 @@ export class WorkoutService {
       exercises: [],
       comment: ''
     };
-    localStorage.setItem(AppConfig.newWorkoutKey, JSON.stringify(workout));
+
+    addWorkoutToStorage(workout);
+
     return of(workout).pipe(delay(300));
   }
 
   updateWorkout(workout: Workout): Observable<any> {
-    localStorage.setItem(AppConfig.newWorkoutKey, JSON.stringify(workout));
+    updateStoredWorkoutsByWorkout(workout);
+
     return of('').pipe(delay(300));
   }
 
@@ -46,60 +137,32 @@ export class WorkoutService {
     workoutId: string,
     exercises: Exercise[]
   ): Observable<{ status: ResultType }> {
-    const storageNewWorkout = localStorage.getItem(AppConfig.newWorkoutKey);
-    const newWorkout = storageNewWorkout && JSON.parse(storageNewWorkout);
-    localStorage.setItem(AppConfig.newWorkoutKey, JSON.stringify({ ...newWorkout, exercises }));
+    updateStoredWorkoutsByWorkout({ id: workoutId, exercises });
+
     return of({ status: ResultType.Success }).pipe(delay(300));
   }
 
   saveWorkout(workout: Workout): Observable<any> {
-    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
-    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
     const newWorkout = { ...workout, endTime: dayjs().format() };
-    const isNew = !workouts.find(w => w.id === newWorkout.id);
+    const isNew = !getStoredWorkout(workout.id);
     if (isNew) {
-      const newWorkouts = JSON.stringify(workouts.concat([newWorkout]));
-      localStorage.setItem(AppConfig.workoutsKey, newWorkouts);
-      localStorage.removeItem(AppConfig.newWorkoutKey);
+      addWorkoutToStorage(newWorkout);
     } else {
-      const newWorkouts = workouts.map(w => {
-        if (w.id === workout.id) {
-          return newWorkout;
-        }
-        return w;
-      });
-      localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
+      updateStoredWorkoutsByWorkout(newWorkout);
     }
+
     return of('').pipe(delay(300));
   }
 
-  getNewWorkout(id: string): Observable<Workout | null> {
-    const storageNewWorkout = localStorage.getItem(AppConfig.newWorkoutKey);
-    const newWorkout: Workout | null = storageNewWorkout ? JSON.parse(storageNewWorkout) : null;
-    if (newWorkout && newWorkout.id === id) {
-      return of(newWorkout).pipe(delay(300));
-    }
-    return of(null).pipe(delay(300));
-  }
+  deleteWorkout(id: Workout['id']): Observable<any> {
+    deleteWorkoutFromStorage(id);
 
-  deleteWorkout(id: string): Observable<any> {
-    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
-    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
-    const newWorkouts = workouts.filter(w => w.id !== id);
-    localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
     return of('').pipe(delay(300));
   }
 
-  updateTitle(id: string, title: string): Observable<any> {
-    const storageWorkouts = localStorage.getItem(AppConfig.workoutsKey);
-    const workouts: Workout[] = storageWorkouts ? JSON.parse(storageWorkouts) : [];
-    const newWorkouts = workouts.map(w => {
-      if (w.id === id) {
-        return { ...w, title };
-      }
-      return w;
-    });
-    localStorage.setItem(AppConfig.workoutsKey, JSON.stringify(newWorkouts));
+  updateWorkoutTitle(id: Workout['id'], title: string): Observable<any> {
+    updateStoredWorkoutsByWorkout({ id, title });
+
     return of(title).pipe(delay(300));
   }
 }

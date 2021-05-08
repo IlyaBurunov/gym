@@ -8,19 +8,33 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 
-import { Exercise, WeightType, Set, ExerciseUnitType } from '../../../../models/workouts';
+import { workoutService } from '../../../../services';
+
+import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../../../models/workouts';
 
 import { If } from '../../../../util';
 import { DeleteIcon } from '../../../../components/icons';
 
 import css from './ExerciseItem.module.scss';
 
+function getWeightShortName(type: WeightType | undefined) {
+  switch (type) {
+    case WeightType.Kilogram:
+      return 'kg';
+    case WeightType.LB:
+      return 'lbs';
+    default:
+      throw new Error('Unknown weight type');
+  }
+}
+
 function ExerciseItem(props: {
+  workoutId: Workout['id'];
   exercise: Exercise;
   onExerciseUpdate(e: Exercise): void;
   onDeleteExercises(id: string): void;
 }) {
-  const { exercise, onExerciseUpdate, onDeleteExercises } = props;
+  const { workoutId, exercise, onExerciseUpdate, onDeleteExercises } = props;
   const [newSet, setNewSet] = useState<Set>();
   const [dataError, setDataError] = useState('');
 
@@ -43,37 +57,33 @@ function ExerciseItem(props: {
     }
   }, [newSet, exercise, onExerciseUpdate]);
 
-  const getWeightAbr = useCallback((weightType: WeightType | undefined) => {
-    switch (weightType) {
-      case WeightType.Kilogram:
-        return 'kg';
-      case WeightType.LB:
-        return 'lbs';
-      default:
-        console.error('Unknown weight type');
-    }
-  }, []);
+  const onSetDelete = useCallback(
+    id => {
+      workoutService.deleteSet(workoutId, exercise.id, id);
+    },
+    [workoutId, exercise.id]
+  );
 
   const sets = useMemo(() => {
-    return exercise.sets.map((s, i) => (
-      <div key={`i${i}w${s.weight}`} className={css.exerciseSet}>
+    return exercise.sets.map((set, i) => (
+      <div key={`i${i}w${set.weight}`} className={css.exerciseSet}>
         <div className={css.exerciseSet__stats}>
-          <div>Reps count: {s.repsCount}</div>
-          <If condition={!!s.weightType}>
+          <div>Reps count: {set.repsCount}</div>
+          <If condition={!!set.weightType}>
             <div>
-              Weight: {s.weight}
-              {getWeightAbr(s.weightType)}
+              Weight: {set.weight}
+              {getWeightShortName(set.weightType)}
             </div>
           </If>
         </div>
         <div>
-          <IconButton aria-label="delete">
+          <IconButton onClick={() => onSetDelete(set.id)} aria-label="delete">
             <DeleteIcon />
           </IconButton>
         </div>
       </div>
     ));
-  }, [exercise.sets, getWeightAbr]);
+  }, [exercise.sets, onSetDelete]);
 
   const onNewSetWeightTypeSelect = useCallback(
     (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
@@ -129,9 +139,9 @@ function ExerciseItem(props: {
                   onChange={onNewSetWeightTypeSelect}
                 >
                   <MenuItem value={WeightType.Kilogram}>
-                    {getWeightAbr(WeightType.Kilogram)}
+                    {getWeightShortName(WeightType.Kilogram)}
                   </MenuItem>
-                  <MenuItem value={WeightType.LB}>{getWeightAbr(WeightType.LB)}</MenuItem>
+                  <MenuItem value={WeightType.LB}>{getWeightShortName(WeightType.LB)}</MenuItem>
                 </Select>
               </FormControl>
             </If>
@@ -152,23 +162,23 @@ function ExerciseItem(props: {
         </>
       );
     }
-  }, [getWeightAbr, onNewSetWeightTypeSelect, newSet, onDoneNewSetClick, dataError]);
+  }, [onNewSetWeightTypeSelect, newSet, onDoneNewSetClick, dataError]);
 
   const onAddNewSetClick = useCallback(() => {
     const lastSet = exercise.sets[exercise.sets.length - 1];
-    const newS: Set = (() => {
-      if (exercise.unitType === ExerciseUnitType.Weight) {
-        return {
-          repsCount: lastSet ? lastSet.repsCount : 1,
-          weight: lastSet ? lastSet.weight : 1,
-          weightType: lastSet ? lastSet.weightType : WeightType.Kilogram
-        };
-      }
-
-      return { repsCount: 0 };
-    })();
-
-    setNewSet(newS);
+    workoutService
+      .createSet(
+        exercise.unitType === ExerciseUnitType.Weight
+          ? {
+              repsCount: lastSet ? lastSet.repsCount : 1,
+              weight: lastSet ? lastSet.weight : 1,
+              weightType: lastSet ? lastSet.weightType : WeightType.Kilogram
+            }
+          : { repsCount: 0 }
+      )
+      .subscribe(newSet => {
+        setNewSet(newSet);
+      });
   }, [exercise.sets, exercise.unitType]);
 
   return (

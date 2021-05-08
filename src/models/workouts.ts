@@ -1,5 +1,3 @@
-import { ExerciseDatabaseType } from '../database/exercises';
-
 export enum ExerciseUnitType {
   Time = 1,
   Weight,
@@ -11,20 +9,17 @@ export enum WeightType {
   LB
 }
 
-// export interface WorkoutDay {
-//     id: string;
-//     date: string;
-//     workouts: Workout[];
-//     title: string;
-// }
-
 export interface Set {
-  repsCount: number;
+  id: string;
+  repsCount?: number;
   weight?: number;
   weightType?: WeightType;
 }
 
-export interface Exercise extends ExerciseDatabaseType {
+export interface Exercise {
+  id: string;
+  name: string;
+  unitType: ExerciseUnitType;
   sets: Set[];
   startTime: string;
   endTime: string;

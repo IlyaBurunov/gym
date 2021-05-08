@@ -1,4 +1,3 @@
-export const AppConfig = {
-  workoutsKey: 'gym-notebook:workouts',
-  newWorkoutKey: 'gym-notebook:newWorkout'
+export const AppConfig: { workoutsKey: string } = {
+  workoutsKey: 'gym-notebook:workouts'
 };
