@@ -1,6 +1,6 @@
-.workoutItem {
+.root {
   display: grid;
-  grid-template-columns: 1fr 38px;
+  grid-template-columns: 1fr 50px;
   column-gap: 15px;
   align-items: center;
   width: 600px;
@@ -14,4 +14,8 @@
   &:active {
     background-color: #a3adbd;
   }
+}
+
+.link {
+  height: 100%;
 }

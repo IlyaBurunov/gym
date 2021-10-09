@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { Header } from '../../../common/Header';
+import { BaseTemplate } from '../../../templates';
 import { WorkoutsList } from '../../organisms/WorkoutsList';
 
 export function WorkoutsPage() {
   return (
-    <div>
-      <Header />
+    <BaseTemplate>
       <WorkoutsList />
-    </div>
+    </BaseTemplate>
   );
 }

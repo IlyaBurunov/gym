@@ -1,21 +1,26 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import IconButton from '@material-ui/core/IconButton';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Button from '@material-ui/core/Button';
+import {
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  InputLabel,
+  FormControl,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import DeleteIcon from '@material-ui/icons/Delete';
+import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
 
-import { workoutService } from '../../../../services';
+import { workoutService } from '../../../services';
 
-import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../../../models/workouts';
+import { Workout, Exercise, WeightType, Set, ExerciseUnitType } from '../../../models/workouts';
 
-import { If } from '../../../../util';
-import { DeleteIcon } from '../../../../components/icons';
-
-import css from './ExerciseItem.module.scss';
+import { If } from '../../../util';
 
 function getWeightShortName(type: WeightType | undefined) {
   switch (type) {
@@ -28,15 +33,21 @@ function getWeightShortName(type: WeightType | undefined) {
   }
 }
 
-function ExerciseItem(props: {
+interface Props {
   workoutId: Workout['id'];
   exercise: Exercise;
-  onExerciseUpdate(e: Exercise): void;
+  onExerciseUpdate(exercise: Exercise): void;
   onDeleteExercises(id: string): void;
-}) {
-  const { workoutId, exercise, onExerciseUpdate, onDeleteExercises } = props;
+}
+
+export const ExerciseItem = memo<Props>(function ExerciseItem({
+  workoutId,
+  exercise,
+  onExerciseUpdate,
+  onDeleteExercises
+}: Props) {
   const [newSet, setNewSet] = useState<Set>();
-  const [dataError, setDataError] = useState('');
+  const [dataError, setDataError] = useState<string>('');
 
   const onDoneNewSetClick = useCallback(() => {
     if (newSet?.repsCount) {
@@ -59,31 +70,12 @@ function ExerciseItem(props: {
 
   const onSetDelete = useCallback(
     id => {
+      const newSets: Set[] = exercise.sets.filter(set => set.id === id);
+      onExerciseUpdate({ ...exercise, sets: newSets });
       workoutService.deleteSet(workoutId, exercise.id, id);
     },
-    [workoutId, exercise.id]
+    [workoutId, exercise, onExerciseUpdate]
   );
-
-  const sets = useMemo(() => {
-    return exercise.sets.map((set, i) => (
-      <div key={`i${i}w${set.weight}`} className={css.exerciseSet}>
-        <div className={css.exerciseSet__stats}>
-          <div>Reps count: {set.repsCount}</div>
-          <If condition={!!set.weightType}>
-            <div>
-              Weight: {set.weight}
-              {getWeightShortName(set.weightType)}
-            </div>
-          </If>
-        </div>
-        <div>
-          <IconButton onClick={() => onSetDelete(set.id)} aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-        </div>
-      </div>
-    ));
-  }, [exercise.sets, onSetDelete]);
 
   const onNewSetWeightTypeSelect = useCallback(
     (e: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
@@ -117,7 +109,7 @@ function ExerciseItem(props: {
     if (newSet) {
       return (
         <>
-          <div className={css.exerciseNewSet}>
+          <Box mt={5}>
             <TextField
               label="Reps count"
               type="number"
@@ -150,15 +142,18 @@ function ExerciseItem(props: {
                 <span style={{ color: '#ec5335' }}>{dataError}</span>
               </div>
             </If>
-          </div>
-          <div className={css.buttons}>
+          </Box>
+          <Box mt={2} display="flex">
             <Button variant="contained" color="primary" onClick={onDoneNewSetClick}>
               Done
             </Button>
+
+            <Box ml={1} />
+
             <Button variant="contained" color="secondary" onClick={onCancelNewSetClick}>
               Cancel
             </Button>
-          </div>
+          </Box>
         </>
       );
     }
@@ -182,29 +177,57 @@ function ExerciseItem(props: {
   }, [exercise.sets, exercise.unitType]);
 
   return (
-    <div className={css.exercise}>
-      <div>
-        <div className={css.exerciseTitle}>
-          <span>{exercise.name}</span>
+    <Box p={2}>
+      <Box width="600px" display="flex" alignItems="center">
+        {/* @todo добавить цвет для каждой группы мышц и мб иконки */}
+        <Avatar component="span">
+          <FitnessCenterIcon />
+        </Avatar>
+
+        <Box ml={1}>
+          <Typography display="inline" variant="h6">
+            {exercise.name}
+          </Typography>
+        </Box>
+
+        <Box display="inline" ml="auto">
           <IconButton onClick={() => onDeleteExercises(exercise.id)} aria-label="delete">
             <DeleteIcon />
           </IconButton>
-        </div>
-        <Button variant="contained" color="primary" onClick={onAddNewSetClick}>
-          Add new set
-        </Button>
-      </div>
+        </Box>
+      </Box>
+
       {newSetTmpl}
-      <If condition={!!sets.length}>
-        <div className={css.sets}>
-          <div>Sets</div>
-          <div className={css.exerciseSets}>{sets}</div>
-        </div>
-      </If>
-    </div>
+
+      <Box mt={2} pl={4}>
+        Sets{' '}
+        <IconButton onClick={onAddNewSetClick} aria-label="delete">
+          <AddCircleIcon />
+        </IconButton>
+        {exercise.sets.map((set, index) => (
+          <Box
+            key={`i${index}w${set.weight}`}
+            width="500px"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <div>
+              Reps count: {set.repsCount}
+              <If condition={Boolean(set.weightType)}>
+                {' '}
+                Weight: {set.weight}
+                {getWeightShortName(set.weightType)}
+              </If>
+            </div>
+            <div>
+              <IconButton onClick={() => onSetDelete(set.id)} aria-label="delete">
+                <DeleteIcon />
+              </IconButton>
+            </div>
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
-}
-
-const ExerciseItemMemo = memo(ExerciseItem);
-
-export { ExerciseItemMemo as ExerciseItem };
+});
